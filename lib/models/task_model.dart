@@ -4,7 +4,7 @@ class Task{
   String title;
   DateTime date;
   String priority;
-  int status;
+  int status; // 0 - incomplete, 1- complete
 
   Task({this.title, this.date, this.priority, this.status});
   Task.withId({this.id, this.title, this.date, this.priority, this.status});

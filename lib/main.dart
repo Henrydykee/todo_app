@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:todo_app/screens/todo_list_screen.dart';
 
 void main() {
@@ -14,6 +15,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.green,
+        appBarTheme: AppBarTheme(brightness: Brightness.light),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: ToDo(),

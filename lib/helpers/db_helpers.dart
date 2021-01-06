@@ -39,7 +39,7 @@ class DatabaseHelper {
   void _onCreate(Database db, int version) async {
     // When creating the db, create the table
     await db.execute(
-        "CREATE TABLE $taskTable ($colId  INTEGER PRIMARY KEY AUTOINCREMENT, $colTitle TEXT, $colDate TEXT, $colPriority TEXT, $colStatus TEXT )");
+        "CREATE TABLE $taskTable ($colId  INTEGER PRIMARY KEY AUTOINCREMENT, $colTitle TEXT, $colDate TEXT, $colPriority TEXT, $colStatus INTEGER )");
     print("Created tables");
   }
 
@@ -57,6 +57,7 @@ class DatabaseHelper {
     taskMapList.forEach((taskMap) {
       taskList.add(Task.fromMap(taskMap));
     });
+    taskList.sort((taskA, taskB) => taskA.date.compareTo(taskB.date));
     return taskList;
   }
 

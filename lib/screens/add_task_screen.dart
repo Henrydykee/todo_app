@@ -3,8 +3,15 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:todo_app/helpers/db_helpers.dart';
+import 'package:todo_app/models/task_model.dart';
 
 class AddTask extends StatefulWidget {
+  final  Task task;
+  final Function updateTaskList;
+
+  AddTask({this.task,this.updateTaskList});
+
   @override
   _AddTaskState createState() => _AddTaskState();
 }
@@ -12,16 +19,23 @@ class AddTask extends StatefulWidget {
 class _AddTaskState extends State<AddTask> {
   final _formKey = GlobalKey<FormState>();
   String _title = "";
-  String priority = "";
+  String _priority;
   DateTime _date = DateTime.now();
+  
 
  TextEditingController _dateController = TextEditingController();
+  TextEditingController _titleController = TextEditingController();
 
  final DateFormat _dateFormat = DateFormat('MMM DD, yyy');
  final List<String> _priorites =['Low','Medium','High'];
 
   @override
   void initState() {
+    if(widget.task != null){
+        _titleController.text = widget.task.title;
+        _date = widget.task.date;
+        _priority = widget.task.priority;
+    }
     _dateController.text = _dateFormat.format(_date);
   }
 
@@ -40,6 +54,29 @@ class _AddTaskState extends State<AddTask> {
     _dateController.text = _dateFormat.format(date);
   }
 
+  _submit(){
+    if(_formKey.currentState.validate()){
+      Task task = Task(title: _titleController.text, date: _date, priority: _priority);
+      if(widget.task == null){
+        task.status = 0;
+        DatabaseHelper.instance.insertTask(task);
+      }else{
+        task.id = widget.task.id;
+        task.status = widget.task.status;
+        DatabaseHelper.instance.updateTask(task);
+      }
+      widget.updateTaskList();
+      Navigator.pop(context);
+    }
+  }
+
+  _delete(){
+    DatabaseHelper.instance.deleteTask(widget.task.id);
+    widget.updateTaskList();
+    Navigator.pop(context);
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,12 +86,22 @@ class _AddTaskState extends State<AddTask> {
           color: Colors.white,
         ),
         onPressed: () {
-          log("$_title, $priority, $_date");
+          log("${_titleController.text}, $_priority, $_date");
+            _submit();
         },
         backgroundColor: Colors.green,
       ),
       backgroundColor: Colors.white,
       appBar: AppBar(
+        leading: Visibility(
+          visible: widget.task != null,
+          child: IconButton(
+            onPressed: () {
+              _delete();
+            },
+            icon: Icon(Icons.delete_forever_rounded,color: Colors.red,size: 30,),
+          ),
+        ),
         elevation: 0.0,
         actions: [
           IconButton(
@@ -66,7 +113,7 @@ class _AddTaskState extends State<AddTask> {
         ],
         backgroundColor: Colors.white,
         centerTitle: true,
-        title: Text("Add Task",style: TextStyle(
+        title: Text(widget.task == null ? "Add Task" : "Update Task",style: TextStyle(
           color: Colors.black
         ),),
       ),
@@ -82,6 +129,7 @@ class _AddTaskState extends State<AddTask> {
                   children: [
                     SizedBox(height: 10,),
                     TextFormField(
+                      controller: _titleController,
                       style: TextStyle(fontSize: 18.0),
                       decoration: InputDecoration(
                         labelText: "Title",
@@ -114,9 +162,9 @@ class _AddTaskState extends State<AddTask> {
                     ),
                     SizedBox(height: 15,),
                     DropdownButtonFormField(
+                      value: _priority,
                       items: _priorites.map((String priority){
                         return DropdownMenuItem(
-
                           value: priority,
                           child: Text(
                             priority,
@@ -135,13 +183,13 @@ class _AddTaskState extends State<AddTask> {
                               borderRadius: BorderRadius.circular(10.0)
                           )
                       ),
-                      validator: (input) => input.trim().isEmpty ? 'Please input a priority level' : null,
+                      validator: (input) => input.toString().trim().isEmpty ? 'Please input a priority level' : null,
                       onChanged: (value) {
                         setState(() {
-                          priority = value;
+                          _priority = value;
                         });
                       },
-                      onSaved: (input) => priority = input,
+                      onSaved: (input) => _priority = input,
                     )
                   ],
                 ),
