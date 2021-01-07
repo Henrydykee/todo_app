@@ -19,6 +19,7 @@ class DatabaseHelper {
   String colTitle = 'title';
   String colDate = 'date';
   String colPriority = 'priority';
+  String colNote = 'note';
   String colStatus = 'status';
 
   Future<Database> get db async {
@@ -39,7 +40,7 @@ class DatabaseHelper {
   void _onCreate(Database db, int version) async {
     // When creating the db, create the table
     await db.execute(
-        "CREATE TABLE $taskTable ($colId  INTEGER PRIMARY KEY AUTOINCREMENT, $colTitle TEXT, $colDate TEXT, $colPriority TEXT, $colStatus INTEGER )");
+        "CREATE TABLE $taskTable ($colId  INTEGER PRIMARY KEY AUTOINCREMENT, $colTitle TEXT, $colDate TEXT, $colPriority TEXT, $colNote TEXT ,$colStatus INTEGER )");
     print("Created tables");
   }
 

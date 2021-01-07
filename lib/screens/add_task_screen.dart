@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:todo_app/helpers/db_helpers.dart';
 import 'package:todo_app/models/task_model.dart';
+import 'package:avatar_glow/avatar_glow.dart';
 
 class AddTask extends StatefulWidget {
   final  Task task;
@@ -19,15 +20,18 @@ class AddTask extends StatefulWidget {
 class _AddTaskState extends State<AddTask> {
   final _formKey = GlobalKey<FormState>();
   String _title = "";
-  String _priority;
+  String _priority = "Low" ;
   DateTime _date = DateTime.now();
+  final maxLines = 10;
   
 
  TextEditingController _dateController = TextEditingController();
   TextEditingController _titleController = TextEditingController();
+  TextEditingController _noteController = TextEditingController();
 
  final DateFormat _dateFormat = DateFormat('MMM DD, yyy');
  final List<String> _priorites =['Low','Medium','High'];
+  bool _visibilityObs = false;
 
   @override
   void initState() {
@@ -35,6 +39,7 @@ class _AddTaskState extends State<AddTask> {
         _titleController.text = widget.task.title;
         _date = widget.task.date;
         _priority = widget.task.priority;
+        _noteController.text = widget.task.note;
     }
     _dateController.text = _dateFormat.format(_date);
   }
@@ -56,7 +61,7 @@ class _AddTaskState extends State<AddTask> {
 
   _submit(){
     if(_formKey.currentState.validate()){
-      Task task = Task(title: _titleController.text, date: _date, priority: _priority);
+      Task task = Task(title: _titleController.text, date: _date, priority: _priority,note: _noteController.text);
       if(widget.task == null){
         task.status = 0;
         DatabaseHelper.instance.insertTask(task);
@@ -81,9 +86,12 @@ class _AddTaskState extends State<AddTask> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        child: Icon(
-          Icons.check,
-          color: Colors.white,
+        child: AvatarGlow(
+          endRadius: 60.0,
+          child: Icon(
+            Icons.check,
+            color: Colors.white,
+          ),
         ),
         onPressed: () {
           log("${_titleController.text}, $_priority, $_date");
@@ -113,22 +121,34 @@ class _AddTaskState extends State<AddTask> {
         ],
         backgroundColor: Colors.white,
         centerTitle: true,
-        title: Text(widget.task == null ? "Add Task" : "Update Task",style: TextStyle(
+        title: Text(widget.task == null ? "Add Note" : "Update Note",style: TextStyle(
           color: Colors.black
         ),),
       ),
       body: GestureDetector(
         onTap: ()=> FocusScope.of(context).unfocus(),
         child: SingleChildScrollView(
-
           child: Form(
             key: _formKey,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 25,right: 25),
-                child: Column(
-                  children: [
-                    SizedBox(height: 10,),
-                    TextFormField(
+              child: Column(
+                children: [
+                  Visibility(
+                    visible: widget.task?.status == 1 ? true : false ,
+                    child: Container(
+                      width:double.infinity,
+                      color: Colors.red,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text("You marked this note as completed",style: TextStyle(
+                          color: Colors.white
+                        ),),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10,),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 25,right: 25),
+                    child: TextFormField(
                       controller: _titleController,
                       style: TextStyle(fontSize: 18.0),
                       decoration: InputDecoration(
@@ -146,8 +166,11 @@ class _AddTaskState extends State<AddTask> {
                         });
                       },
                     ),
-                    SizedBox(height: 15,),
-                    TextFormField(
+                  ),
+                  SizedBox(height: 15,),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 25,right: 25),
+                    child: TextFormField(
                       readOnly: true,
                       controller: _dateController,
                       style: TextStyle(fontSize: 18.0),
@@ -160,8 +183,11 @@ class _AddTaskState extends State<AddTask> {
                           )
                       ),
                     ),
-                    SizedBox(height: 15,),
-                    DropdownButtonFormField(
+                  ),
+                  SizedBox(height: 15,),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 25,right: 25),
+                    child: DropdownButtonFormField(
                       value: _priority,
                       items: _priorites.map((String priority){
                         return DropdownMenuItem(
@@ -190,9 +216,25 @@ class _AddTaskState extends State<AddTask> {
                         });
                       },
                       onSaved: (input) => _priority = input,
-                    )
-                  ],
-                ),
+                    ),
+                  ),
+                  SizedBox(height: 15,),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 25,right: 25),
+                    child: TextFormField(
+                      validator: (input)=>input.trim().isEmpty? "Note cannot be blank" : null,
+                      controller: _noteController,
+                      maxLines: maxLines,
+                      decoration: InputDecoration(
+                          labelText: "Notes",
+                          labelStyle: TextStyle(fontSize: 18),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0)
+                          )
+                      ),
+                    ),
+                  )
+                ],
               )
           ),
         ),

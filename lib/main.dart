@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:todo_app/screens/splah_screen.dart';
 import 'package:todo_app/screens/todo_list_screen.dart';
 
 void main() {
@@ -11,14 +12,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Flutter  Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.green,
         appBarTheme: AppBarTheme(brightness: Brightness.light),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: ToDo(),
+      home: SplashScreen(),
     );
   }
 }

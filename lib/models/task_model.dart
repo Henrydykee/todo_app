@@ -4,10 +4,11 @@ class Task{
   String title;
   DateTime date;
   String priority;
+  String note;
   int status; // 0 - incomplete, 1- complete
 
-  Task({this.title, this.date, this.priority, this.status});
-  Task.withId({this.id, this.title, this.date, this.priority, this.status});
+  Task({this.title, this.date, this.priority, this.status,this.note});
+  Task.withId({this.id, this.title, this.date, this.priority, this.status,this.note});
 
   Map<String, dynamic>toMap(){
     final map = Map<String, dynamic>();
@@ -15,6 +16,7 @@ class Task{
       map ['id'] = id;
     }
     map ['title'] = title;
+    map ['note'] = note;
     map ['date'] = date.toIso8601String();
     map ['priority'] = priority;
     map ['status'] = status;
@@ -25,6 +27,7 @@ class Task{
   factory Task.fromMap(Map<String, dynamic> map){
     return Task.withId(
       id: map['id'],
+      note: map['note'],
       title: map['title'],
       date: DateTime.parse(map['date']),
       priority: map['priority'],
