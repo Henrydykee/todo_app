@@ -1,11 +1,13 @@
 
 import 'dart:developer';
+import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:todo_app/helpers/db_helpers.dart';
 import 'package:todo_app/models/task_model.dart';
 import 'package:avatar_glow/avatar_glow.dart';
+import 'package:flutter_mobile_vision/flutter_mobile_vision.dart';
 
 class AddTask extends StatefulWidget {
   final  Task task;
@@ -23,6 +25,7 @@ class _AddTaskState extends State<AddTask> {
   String _priority = "Low" ;
   DateTime _date = DateTime.now();
   final maxLines = 10;
+  bool _isInitialized = false;
   
 
  TextEditingController _dateController = TextEditingController();
@@ -32,9 +35,14 @@ class _AddTaskState extends State<AddTask> {
  final DateFormat _dateFormat = DateFormat('MMM DD, yyy');
  final List<String> _priorites =['Low','Medium','High'];
   bool _visibilityObs = false;
+  int cameraOcr = FlutterMobileVision.CAMERA_BACK;
 
   @override
   void initState() {
+    FlutterMobileVision.start().then((value) {
+      _isInitialized = true;
+    });
+
     if(widget.task != null){
         _titleController.text = widget.task.title;
         _date = widget.task.date;
@@ -79,6 +87,26 @@ class _AddTaskState extends State<AddTask> {
     DatabaseHelper.instance.deleteTask(widget.task.id);
     widget.updateTaskList();
     Navigator.pop(context);
+  }
+
+ Future <Null> _startScan() async {
+    List<OcrText> list = List();
+    try{
+      list = await FlutterMobileVision.read(
+        waitTap: true,
+        fps:  5,
+        multiple:  true,
+        camera: cameraOcr
+      );
+      for (OcrText text in list ){
+        setState(() {
+          _noteController.text = text.value.toString();
+        });
+      }
+    }
+    catch(e){
+    print("this is the error: ${e.toString()}");
+    }
   }
 
 
@@ -231,6 +259,16 @@ class _AddTaskState extends State<AddTask> {
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10.0)
                           )
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 15,),
+                  Container(
+                    width: double.infinity,
+                    child: GestureDetector(
+                      onTap: _startScan,
+                      child: Center(
+                        child: Icon(Icons.camera_enhance_outlined,size: 35,),
                       ),
                     ),
                   )
