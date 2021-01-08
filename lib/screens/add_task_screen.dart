@@ -1,6 +1,7 @@
 
 import 'dart:developer';
 import 'dart:ffi';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -263,12 +264,15 @@ class _AddTaskState extends State<AddTask> {
                     ),
                   ),
                   SizedBox(height: 15,),
-                  Container(
-                    width: double.infinity,
-                    child: GestureDetector(
-                      onTap: _startScan,
-                      child: Center(
-                        child: Icon(Icons.camera_enhance_outlined,size: 35,),
+                  Visibility(
+                    visible: Platform.isAndroid ? false : Platform.isIOS ? false : false,
+                    child: Container(
+                      width: double.infinity,
+                      child: GestureDetector(
+                        onTap: _startScan,
+                        child: Center(
+                          child: Icon(Icons.camera_enhance_outlined,size: 35,),
+                        ),
                       ),
                     ),
                   )
